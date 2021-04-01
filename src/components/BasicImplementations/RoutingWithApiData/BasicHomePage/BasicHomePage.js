@@ -49,7 +49,7 @@ const AboutComponent = () => {
     return (
         <div>
             <header style={{"text-align": "center",border: "0.5em solid"}}>
-                <h1>About Us</h1>
+                <b>About Us</b>
             </header>
             <section style={{display:'flex', flexDirection:'column', "align-items": "center",border: "0.5em solid black"}}>
                 <p>..Ye hamara component hai</p>
@@ -74,16 +74,31 @@ const AboutComponent = () => {
 
 // This is kind of a resusable component , it's responsibility is to formulate an Item ,
 // with the required details in an HTML .
-const ItemComponent = () => {
+const ItemComponent = ({match}) => {
     
-    const getItem = () =>{
-        const item = fetch('https://fortnite-api.theapinetwork.com/item/get?id=2fad344-834e456-dcf643d-91f9712')
+    useEffect(()=>{
+        getItem();
+    } , [])
+
+    const [item, setItem] = useState({
+        images: {}
+    })
+
+    const getItem = async () =>{
+        const res = await fetch(`https://fortnite-api.theapinetwork.com/item/get?id=${match.params.id}`)
+        const data = await res.json();
+        setItem(data.data.item)
     }
 
     return (
         // This is JSX
         <div>
-            
+            <section style={{display:'flex', flexDirection:'column', "align-items": "center",border: "0.5em solid black"}}>
+                <div style={{border: "0.5em solid",margin: "0.5em",padding: "0.3em",color: "green"}}>
+                    <b style={{color: "black", fontStyle: "italic",fontFamily: 'system-ui'}}>{item.name}</b>
+                </div>
+                <div><img src={item.images.icon} alt="" srcset=""/></div>
+            </section>
         </div>    
     )
 }
@@ -136,7 +151,8 @@ class BasicHomePage extends Component {
                         {/* Anything returning JSX is a component */}
                         <Route path="/" exact component={() => (<div> <p> Home Component </p> </div>)}/>                        
                         <Route path="/about" component={AboutComponent}/>
-                        <Route path="/shop" component={ShopComponent}/>
+                        <Route path="/shop" exact component={ShopComponent}/>
+                        <Route path="/shop/:id" component={ItemComponent}/>
                     </Switch>
                 </Router>
             </div>
